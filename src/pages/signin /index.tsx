@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useContext } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { FiLogIn, FiMail, FiLock } from 'react-icons/fi';
 import { FormHandles } from '@unform/core';
 import { Form } from '@unform/web';
@@ -9,19 +9,24 @@ import logoImg from '../../assets/logo.svg';
 import Input from '../../components/input';
 import Button from '../../components/button';
 
-import { AuthContext } from '../../context/authContext';
+import { useAuth } from '../../context/authContext';
 import getValidationErrors from '../../utils/getValidationErrors';
 
 import { Container, Content, Background } from './styles';
 
+interface SignInFormData {
+  email: string;
+  password: string;
+}
+
 const SignIn: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
 
-  const { signIn } = useContext(AuthContext);
+  const { signIn } = useAuth();
 
   // eslint-disable-next-line @typescript-eslint/ban-types
   const handleSubmit = useCallback(
-    async (data: object) => {
+    async (data: SignInFormData) => {
       try {
         const schema = Yup.object().shape({
           email: Yup.string()
@@ -34,7 +39,10 @@ const SignIn: React.FC = () => {
           abortEarly: false,
         });
 
-        signIn();
+        signIn({
+          email: data.email,
+          password: data.password,
+        });
       } catch (err) {
         const errors = getValidationErrors(err);
 
